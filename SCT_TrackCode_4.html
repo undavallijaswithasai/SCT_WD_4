@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>To-Do Web App</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:#1f2235;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+}
+
+.container{
+    width:700px;
+    background:#fff;
+    padding:25px;
+    border-radius:12px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.3);
+}
+
+h1{
+    text-align:center;
+    margin-bottom:20px;
+    color:#333;
+}
+
+.input-box{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
+
+.input-box input{
+    padding:10px;
+    border:1px solid #ccc;
+    border-radius:5px;
+}
+
+#taskInput{
+    flex:1;
+}
+
+button{
+    padding:10px 15px;
+    border:none;
+    border-radius:5px;
+    color:white;
+    cursor:pointer;
+}
+
+.add-btn{
+    background:#007bff;
+}
+
+.add-btn:hover{
+    background:#0056b3;
+}
+
+ul{
+    list-style:none;
+}
+
+li{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#f5f5f5;
+    padding:12px;
+    margin:10px 0;
+    border-radius:8px;
+}
+
+.completed{
+    text-decoration:line-through;
+    color:gray;
+}
+
+.task-date{
+    font-size:12px;
+    color:#666;
+}
+
+.actions button{
+    margin-left:5px;
+}
+
+.complete{
+    background:green;
+}
+
+.edit{
+    background:orange;
+}
+
+.delete{
+    background:red;
+}
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>📝 To-Do Web App</h1>
+
+<div class="input-box">
+<input type="text" id="taskInput" placeholder="Enter Task">
+<input type="datetime-local" id="taskDate">
+<button class="add-btn" onclick="addTask()">Add Task</button>
+</div>
+
+<ul id="taskList"></ul>
+
+</div>
+
+<script>
+
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+displayTasks();
+
+function saveTasks(){
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+}
+
+function addTask(){
+
+    let task = document.getElementById("taskInput").value.trim();
+    let date = document.getElementById("taskDate").value;
+
+    if(task==""){
+        alert("Please enter a task.");
+        return;
+    }
+
+    tasks.push({
+        text:task,
+        date:date,
+        completed:false
+    });
+
+    saveTasks();
+    displayTasks();
+
+    document.getElementById("taskInput").value="";
+    document.getElementById("taskDate").value="";
+}
+
+function displayTasks(){
+
+    let list=document.getElementById("taskList");
+    list.innerHTML="";
+
+    tasks.forEach((item,index)=>{
+
+        list.innerHTML += `
+        <li>
+            <div>
+                <h3 class="${item.completed ? 'completed':''}">
+                    ${item.text}
+                </h3>
+
+                <div class="task-date">
+                    ${item.date ? "📅 " + item.date.replace("T"," ") : ""}
+                </div>
+            </div>
+
+            <div class="actions">
+
+                <button class="complete"
+                onclick="toggleComplete(${index})">✔</button>
+
+                <button class="edit"
+                onclick="editTask(${index})">✏</button>
+
+                <button class="delete"
+                onclick="deleteTask(${index})">🗑</button>
+
+            </div>
+
+        </li>
+        `;
+    });
+
+}
+
+function toggleComplete(index){
+    tasks[index].completed=!tasks[index].completed;
+    saveTasks();
+    displayTasks();
+}
+
+function editTask(index){
+
+    let newTask=prompt("Edit Task",tasks[index].text);
+
+    if(newTask!=null && newTask.trim()!=""){
+        tasks[index].text=newTask;
+        saveTasks();
+        displayTasks();
+    }
+
+}
+
+function deleteTask(index){
+
+    if(confirm("Delete this task?")){
+        tasks.splice(index,1);
+        saveTasks();
+        displayTasks();
+    }
+
+}
+
+</script>
+
+</body>
+</html>
